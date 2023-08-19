@@ -5,17 +5,15 @@ import { GetPostsInputDTO, GetPostsOutputDTO } from "../../dto/posts/getPosts.dt
 import { LikeDislikePostInputDTO, LikeDislikePostOutputDTO } from "../../dto/posts/likeDislikePost.dto";
 import { BadRequestError } from "../../errors/BadRequestError";
 import { NotFoundError } from "../../errors/NotfoundError";
-import { LikeDislikeDB, POST_LIKE, Posts, PostsModel } from "../../models/Posts";
+import { LikeDislikeDB, POST_LIKE, Posts} from "../../models/Posts";
 import { USER_ROLES } from "../../models/Users";
 import { IdGenerator } from "../../services/IdGenerator";
 import { TokenManager } from "../../services/TokenManager";
 import { PostDatabase } from "../PostDatabase";
-import { UserDatabase } from "../UserDatabase";
 
 export class PostBusiness {
     constructor(
         private postDatabase: PostDatabase,
-        private userDatabase: UserDatabase,
         private idGenerator: IdGenerator,
         private tokenManager: TokenManager
     ) { }
@@ -40,7 +38,7 @@ export class PostBusiness {
                 postDB.created_at,
                 postDB.updated_at,
                 postDB.creator_id,
-                postDB.creator_name
+                postDB.creator_nickname
             )
 
             return post.toPostModel()
@@ -68,7 +66,7 @@ export class PostBusiness {
             new Date().toLocaleString("pt-br"),
             new Date().toLocaleString("pt-br"),
             payload.id,
-            payload.name
+            payload.nickname
         )
 
         const newPostDB = newPost.toDBModel()
@@ -97,7 +95,7 @@ export class PostBusiness {
         }
 
         if (payload.id !== postDB.creator_id) {
-            throw new BadRequestError("Acesso negado")
+            throw new BadRequestError("Acesso negado: somente o criador do post pode editá-lo")
         }
 
         const post = new Posts(
@@ -108,10 +106,11 @@ export class PostBusiness {
             postDB.created_at,
             postDB.updated_at,
             postDB.creator_id,
-            payload.name
+            payload.nickname
         )
 
         post.setContent(content)
+        post.setUpdatedAt(new Date().toLocaleString("pt-br"))
 
         const editPostDB = post.toDBModel()
         await this.postDatabase.updatePost(editPostDB)
@@ -151,7 +150,7 @@ export class PostBusiness {
 
     }
     
-    public likeDislikePost =async (input:LikeDislikePostInputDTO): Promise<LikeDislikePostOutputDTO> => {
+    public likeDislikePost = async (input:LikeDislikePostInputDTO): Promise<LikeDislikePostOutputDTO> => {
         const {token, postId, like} = input
 
         const payload = this.tokenManager.getPayload(token)
@@ -174,7 +173,7 @@ export class PostBusiness {
             postDBWithCreatorName.created_at,
             postDBWithCreatorName.updated_at,
             postDBWithCreatorName.creator_id,
-            postDBWithCreatorName.creator_name
+            postDBWithCreatorName.creator_nickname
         )
         
         const likeDislikeDB: LikeDislikeDB = {
