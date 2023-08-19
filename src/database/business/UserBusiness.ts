@@ -1,9 +1,8 @@
-import { GetUsersInputDTO, GetUsersOutputDTO } from "../../dto/user/getUsers.dto"
 import { LoginInputDTO, LoginOutputDTO } from "../../dto/user/login.dto"
 import { SignupInputDTO, SignupOutputDTO } from "../../dto/user/signup.dto"
 import { BadRequestError } from "../../errors/BadRequestError"
 import { NotFoundError } from "../../errors/NotfoundError"
-import { TokenPayload, USER_ROLES, UserModel, Users } from "../../models/Users"
+import { TokenPayload, USER_ROLES, Users } from "../../models/Users"
 import { HashManager } from "../../services/HashManager"
 import { IdGenerator } from "../../services/IdGenerator"
 import { TokenManager } from "../../services/TokenManager"
@@ -17,64 +16,32 @@ export class UserBusiness {
         private hashManager: HashManager
     ) { }
 
-    public getUsers = async (input: GetUsersInputDTO): Promise<GetUsersOutputDTO> => {
-        const { q, token } = input
-
-        const usersModel: UserModel[] = []
-
-        const usersDB = await this.userDatabase.findUsersByName(q)
-
-        const payload = this.tokenManager.getPayload(token)
-
-        if (payload === null) {
-            throw new BadRequestError("Token inválido")
-        }
-
-        if (payload.role !== USER_ROLES.ADMIN) {
-            throw new BadRequestError("somente admins podem acessar esse recurso")
-        }
-
-        if (usersDB.length === 0) {
-            throw new BadRequestError("Usuário não encontrado")
-        }
-
-        for (let userDB of usersDB) {
-            const user = new Users(
-                userDB.id,
-                userDB.name,
-                userDB.email,
-                userDB.password,
-                userDB.role,
-                userDB.created_at
-            )
-
-            usersModel.push(user.toUserModel())
-        }
-
-        const output: GetUsersOutputDTO = usersModel
-
-        return output
-    }
 
     public signup = async (input: SignupInputDTO): Promise<SignupOutputDTO> => {
-        const {name, email, password} = input
+        const { nickname, email, password } = input
         const id = this.idGenerator.generate()
-        
+
         const hashedPassword = await this.hashManager.hash(password)
-        
+
         const newUser = new Users(
             id,
-            name, 
+            nickname,
             email,
-            hashedPassword, 
+            hashedPassword,
             USER_ROLES.NORMAL,
             new Date().toLocaleString("pt-br")
         )
-        
+
         const emailExist = await this.userDatabase.findUserByEmail(email)
 
-        if(emailExist) {
+        if (emailExist) {
             throw new BadRequestError("'email' ja utilizado")
+        }
+
+        const nicknameExist = await this.userDatabase.findUsersByNickname(nickname)
+
+        if (nicknameExist) {
+            throw new BadRequestError("'apelido' já está em uso")
         }
 
         const newUserDB = newUser.toDBModel()
@@ -82,7 +49,7 @@ export class UserBusiness {
 
         const payload: TokenPayload = {
             id: newUser.getId(),
-            name: newUser.getName(),
+            nickname: newUser.getNickname(),
             role: newUser.getRole()
         }
 
@@ -96,8 +63,8 @@ export class UserBusiness {
 
     }
 
-    public login = async (input:LoginInputDTO): Promise<LoginOutputDTO> => {
-        const {email, password} = input
+    public login = async (input: LoginInputDTO): Promise<LoginOutputDTO> => {
+        const { email, password } = input
 
         const userDB = await this.userDatabase.findUserByEmail(email)
 
@@ -115,7 +82,7 @@ export class UserBusiness {
 
         const payload: TokenPayload = {
             id: userDB.id,
-            name: userDB.name,
+            nickname: userDB.nickname,
             role: userDB.role
         }
 

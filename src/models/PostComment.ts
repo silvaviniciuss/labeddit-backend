@@ -1,6 +1,7 @@
-export interface PostDB {
+export interface PostCommentDB {
     id: string,
     creator_id: string,
+    post_id: string,
     content: string,
     likes: number,
     dislikes: number,
@@ -8,9 +9,10 @@ export interface PostDB {
     updated_at: string
 }
 
-export interface GetPostsDB {
+export interface GetPostCommentDB {
     id: string,
     creator_id: string,
+    post_id: string,
     content: string,
     likes: number,
     dislikes: number,
@@ -19,9 +21,10 @@ export interface GetPostsDB {
     creator_nickname: string
 }
 
-export interface PostsModel {
+export interface PostCommentModel {
     id: string,
     content: string,
+    post_id: string
     likes: number,
     dislikes: number,
     createdAt: string,
@@ -32,20 +35,21 @@ export interface PostsModel {
     }
 }
 
-export interface LikeDislikeDB {
+export interface LikeDislikePostCommentDB {
     user_id: string,
-    post_id: string,
+    post_comment_id: string,
     like: number
 }
 
-export enum POST_LIKE {
+export enum POST_COMMENT_LIKE {
     ALREADY_LIKED = 'ALREADY LIKED',
     ALREADY_DISLIKED = 'ALREADY DISLIKED'
 }
 
-export class Posts {
+export class PostComment {
     constructor(
         private id: string,
+        private postId: string,
         private content: string,
         private likes: number,
         private dislikes: number,
@@ -61,6 +65,14 @@ export class Posts {
 
     public setId(newValue: string): void {
         this.id = newValue
+    }
+
+    public getPostId(): string {
+        return this.postId
+    }
+
+    public setPostId(newValue: string): void {
+        this.postId = newValue
     }
 
     public getContent(): string {
@@ -137,10 +149,11 @@ export class Posts {
         this.creatorNickname = newValue
     }
 
-    public toDBModel(): PostDB {
+    public toPostCommentDBModel(): PostCommentDB {
         return {
             id: this.id,
             creator_id: this.creatorId,
+            post_id: this.postId,
             content: this.content,
             likes: this.likes,
             dislikes: this.dislikes,
@@ -149,9 +162,10 @@ export class Posts {
         }
     }
 
-    public toPostModel(): PostsModel {
+    public toPostCommentModel(): PostCommentModel {
         return {
             id: this.id,
+            post_id: this.postId,
             content: this.content,
             likes: this.likes,
             dislikes: this.dislikes,
