@@ -28,7 +28,7 @@ export interface PostCommentModel {
     likes: number,
     dislikes: number,
     createdAt: string,
-    updateAt: string,
+    updatedAt: string,
     creator: {
         id: string,
         nickname: string
@@ -54,7 +54,7 @@ export class PostComment {
         private likes: number,
         private dislikes: number,
         private createdAt: string,
-        private updateAt: string,
+        private updatedAt: string,
         private creatorId: string,
         private creatorNickname: string
     ) { }
@@ -124,11 +124,11 @@ export class PostComment {
     // }
 
     public getUpdatedAt(): string {
-        return this.updateAt
+        return this.updatedAt
     }
 
     public setUpdatedAt(newValue: string): void {
-        this.updateAt = newValue
+        this.updatedAt = newValue
     }
 
     
@@ -158,7 +158,7 @@ export class PostComment {
             likes: this.likes,
             dislikes: this.dislikes,
             created_at: this.createdAt,
-            updated_at: this.updateAt
+            updated_at: this.updatedAt
         }
     }
 
@@ -170,7 +170,7 @@ export class PostComment {
             likes: this.likes,
             dislikes: this.dislikes,
             createdAt: this.createdAt,
-            updateAt: this.updateAt,
+            updatedAt: this.updatedAt,
             creator: {
                 id: this.creatorId,
                 nickname: this.creatorNickname

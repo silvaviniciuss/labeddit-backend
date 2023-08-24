@@ -29,7 +29,7 @@ export class PostCommentBusiness {
 
         const postCommentsDB = await this.postCommentDatabase.findPostCommentWithCreatorDBByPostId(idToFind)
 
-        if (!postCommentsDB) {
+        if (postCommentsDB.length === 0) {
             throw new NotFoundError("Post com id inexistente")
         }
 
@@ -143,7 +143,7 @@ export class PostCommentBusiness {
         const postCommentDB = await this.postCommentDatabase.findPostCommentByid(idToDelete)
 
         if(!postCommentDB) {
-            throw new BadRequestError("Id inexistente")
+            throw new NotFoundError("Id inexistente")
         }
 
         if(payload.role !== USER_ROLES.ADMIN) {
@@ -171,7 +171,7 @@ export class PostCommentBusiness {
         const [postCommentDBWithCreatorName] = await this.postCommentDatabase.findPostCommentWithCreatorDBByPostCommentId(postCommentId)
 
         if(!postCommentDBWithCreatorName) {
-            throw new BadRequestError("Post inexistente")
+            throw new BadRequestError("Comentário inexistente")
         }
 
        const postComment = new PostComment(
