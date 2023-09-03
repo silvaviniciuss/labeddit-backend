@@ -1,7 +1,7 @@
 import { PostCommentBusiness } from "../../../src/database/business/PostCommentBusiness"
 import { GetCommentsSchema } from "../../../src/dto/postComment/getComments.dto"
-import { LikeDislikePostCommentSchema } from "../../../src/dto/postComment/likeDislikePostComment.dto"
 import { BadRequestError } from "../../../src/errors/BadRequestError"
+
 import { IdGeneratorMock } from "../../mocks/IdGeneratorMock"
 import { PostCommentDatabaseMock } from "../../mocks/PostCommentDatabaseMock"
 import { TokenManagerMock } from "../../mocks/TokenManagerMock"
