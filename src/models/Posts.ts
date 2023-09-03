@@ -25,7 +25,7 @@ export interface PostsModel {
     likes: number,
     dislikes: number,
     createdAt: string,
-    updateAt: string,
+    updatedAt: string,
     creator: {
         id: string,
         nickname: string
@@ -36,6 +36,11 @@ export interface LikeDislikeDB {
     user_id: string,
     post_id: string,
     like: number
+}
+
+export interface GetLikeDislikeDB {
+    user_id: string,
+    post_id: string 
 }
 
 export enum POST_LIKE {
@@ -50,7 +55,7 @@ export class Posts {
         private likes: number,
         private dislikes: number,
         private createdAt: string,
-        private updateAt: string,
+        private updatedAt: string,
         private creatorId: string,
         private creatorNickname: string
     ) { }
@@ -112,11 +117,11 @@ export class Posts {
     // }
 
     public getUpdatedAt(): string {
-        return this.updateAt
+        return this.updatedAt
     }
 
     public setUpdatedAt(newValue: string): void {
-        this.updateAt = newValue
+        this.updatedAt = newValue
     }
 
     
@@ -145,7 +150,7 @@ export class Posts {
             likes: this.likes,
             dislikes: this.dislikes,
             created_at: this.createdAt,
-            updated_at: this.updateAt
+            updated_at: this.updatedAt
         }
     }
 
@@ -156,7 +161,7 @@ export class Posts {
             likes: this.likes,
             dislikes: this.dislikes,
             createdAt: this.createdAt,
-            updateAt: this.updateAt,
+            updatedAt: this.updatedAt,
             creator: {
                 id: this.creatorId,
                 nickname: this.creatorNickname

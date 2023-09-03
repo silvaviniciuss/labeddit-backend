@@ -53,3 +53,9 @@ CREATE TABLE
         FOREIGN KEY (user_id) REFERENCES users (id) ON UPDATE CASCADE ON DELETE CASCADE,
         FOREIGN KEY (post_comment_id) REFERENCES post_comments(id) ON UPDATE CASCADE ON DELETE CASCADE
     );
+
+
+select user_id, post_id, like FROM likes_dislikes_posts as like
+WHERE like.user_id = "9c0064e4-edbe-4617-bd12-c3957903a42b" and like.post_id = "835eb538-7121-46cb-a2cb-24ddae02835e";
+
+select * from users;

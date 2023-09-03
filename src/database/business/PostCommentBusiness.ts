@@ -1,11 +1,13 @@
 import { CreatePostCommentInputDTO, CreatePostCommentOutputDTO } from "../../dto/postComment/createPostComment.dto";
 import { DeletePostCommentInputDTO, DeletePostCommentOutputDTO } from "../../dto/postComment/deletePostComment.dto";
 import { EditPostCommentInputDTO, EditPostCommentOutputDTO } from "../../dto/postComment/editPostComment.dto";
+import { GetCommentsInputDTO, GetCommentsOutputDTO } from "../../dto/postComment/getComments.dto";
+import { GetLikeDislikePostCommentInputDTO, GetLikeDislikePostCommentOutputDTO } from "../../dto/postComment/getLikeDislikePostComment.dto";
 import { GetPostCommentInputDTO, GetPostCommentOutputDTO } from "../../dto/postComment/getPostComment.dto";
 import { LikeDislikePostCommentInputDTO, LikeDislikePostCommentOutputDTO } from "../../dto/postComment/likeDislikePostComment.dto";
 import { BadRequestError } from "../../errors/BadRequestError";
 import { NotFoundError } from "../../errors/NotfoundError";
-import { LikeDislikePostCommentDB, POST_COMMENT_LIKE, PostComment } from "../../models/PostComment";
+import { GetLikeDislikePostCommentDB, LikeDislikePostCommentDB, POST_COMMENT_LIKE, PostComment } from "../../models/PostComment";
 import { USER_ROLES } from "../../models/Users";
 import { IdGenerator } from "../../services/IdGenerator";
 import { TokenManager } from "../../services/TokenManager";
@@ -17,6 +19,38 @@ export class PostCommentBusiness {
         private idGenerator: IdGenerator,
         private tokenManager: TokenManager
     ) { }
+
+    public getComments = async (input: GetCommentsInputDTO): Promise<GetCommentsOutputDTO> => {
+        const { token } = input
+
+        const payload = this.tokenManager.getPayload(token)
+
+        if (!payload) {
+            throw new BadRequestError("Token inválido")
+        }
+
+        const postCommentsDB = await this.postCommentDatabase.findPostCommentWithCreatorDB()
+
+        const postComments = postCommentsDB.map((postCommentDB) => {
+            const postComment = new PostComment(
+                postCommentDB.id,
+                postCommentDB.post_id,
+                postCommentDB.content,
+                postCommentDB.likes,
+                postCommentDB.dislikes,
+                postCommentDB.created_at,
+                postCommentDB.updated_at,
+                postCommentDB.creator_id,
+                postCommentDB.creator_nickname
+            )
+
+            return postComment.toPostCommentModel()
+        })
+
+        const output: GetCommentsOutputDTO = postComments
+        return output
+
+    }
 
     public getPostComment = async (input: GetPostCommentInputDTO): Promise<GetPostCommentOutputDTO> => {
         const { token, idToFind } = input
@@ -131,7 +165,7 @@ export class PostCommentBusiness {
 
     }
 
-    public deletePostComment =async (input:DeletePostCommentInputDTO): Promise<void> => {
+    public deletePostComment =async (input:DeletePostCommentInputDTO): Promise<DeletePostCommentOutputDTO> => {
         const {token, idToDelete} = input
         
         const payload = this.tokenManager.getPayload(token)
@@ -143,7 +177,7 @@ export class PostCommentBusiness {
         const postCommentDB = await this.postCommentDatabase.findPostCommentByid(idToDelete)
 
         if(!postCommentDB) {
-            throw new BadRequestError("Id inexistente")
+            throw new NotFoundError("Id inexistente")
         }
 
         if(payload.role !== USER_ROLES.ADMIN) {
@@ -171,7 +205,7 @@ export class PostCommentBusiness {
         const [postCommentDBWithCreatorName] = await this.postCommentDatabase.findPostCommentWithCreatorDBByPostCommentId(postCommentId)
 
         if(!postCommentDBWithCreatorName) {
-            throw new BadRequestError("Post inexistente")
+            throw new BadRequestError("Comentário inexistente")
         }
 
        const postComment = new PostComment(
@@ -210,7 +244,7 @@ export class PostCommentBusiness {
             } else {
                 await this.postCommentDatabase.updatedLikeDislikePostComment(likeDislikePostCommentDB)
                 postComment.removeDislike()
-                postComment.addDislike()
+                postComment.addLike()
             }
         } else {
             await this.postCommentDatabase.insertLikeDislikePostComment(likeDislikePostCommentDB)
@@ -225,5 +259,31 @@ export class PostCommentBusiness {
 
         return output
     }
+    
+    public getLikeDislikePostComment = async (input: GetLikeDislikePostCommentInputDTO): Promise<GetLikeDislikePostCommentOutputDTO> => {
+        const { token, postCommentId } = input
 
+        const payload = this.tokenManager.getPayload(token)
+
+        if (!payload) {
+            throw new BadRequestError("Token inválido")
+        }
+
+        const postDBExist = await this.postCommentDatabase.findPostCommentByid(postCommentId)
+
+        if (!postDBExist) {
+            throw new NotFoundError("Post inexistente")
+        }
+
+        const getLikeDislikeDB: GetLikeDislikePostCommentDB = {
+            user_id: payload.id,
+            post_comment_id: postCommentId
+        }
+
+        const likeDislikes = await this.postCommentDatabase.getLikeDislikePostComment(getLikeDislikeDB)
+
+        const output: GetLikeDislikePostCommentOutputDTO = likeDislikes
+
+        return output
+    }
 }
