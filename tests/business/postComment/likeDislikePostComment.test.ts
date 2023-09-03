@@ -121,9 +121,5 @@ describe("Like Dislike Post Comment", () => {
         expect(output).toBe(undefined)
     })
 
-
-
-
-
 })
     

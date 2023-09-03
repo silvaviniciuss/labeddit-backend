@@ -2,6 +2,7 @@ import { PostBusiness } from "../../../src/database/business/PostBusiness"
 import { PostDatabaseMock } from "../../mocks/PostDatabaseMock"
 import { IdGeneratorMock } from "../../mocks/IdGeneratorMock"
 import { TokenManagerMock } from "../../mocks/TokenManagerMock"
+import {UserDatabaseMock} from "../../mocks/UserDatabaseMock"
 import { BadRequestError } from "../../../src/errors/BadRequestError"
 import { EditPostSchema } from "../../../src/dto/posts/editPosts.dto"
 import { NotFoundError } from "../../../src/errors/NotfoundError"
@@ -10,7 +11,8 @@ describe("Get Posts", () => {
     const postBusiness = new PostBusiness(
         new PostDatabaseMock(),
         new IdGeneratorMock(),
-        new TokenManagerMock()
+        new TokenManagerMock(),
+        new UserDatabaseMock()
     )
 
     test("deve realizar a edição do conteúdo do post", async () => {

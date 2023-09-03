@@ -1,4 +1,4 @@
-import { GetPostsDB, LikeDislikeDB, POST_LIKE, PostDB } from "../models/Posts";
+import { GetLikeDislikeDB, GetPostsDB, LikeDislikeDB, POST_LIKE, PostDB } from "../models/Posts";
 import { BaseDatabase } from "./BaseDatabase";
 import { UserDatabase } from "./UserDatabase";
 
@@ -95,6 +95,17 @@ export class PostDatabase extends BaseDatabase {
         } else {
             return POST_LIKE.ALREADY_DISLIKED
         }
+    }
+
+    public getLikeDislike = async (getLikeDislikeDB: GetLikeDislikeDB): Promise<LikeDislikeDB> => {
+        const [result] = await BaseDatabase
+            .connection(PostDatabase.TABLE_LIKES_DISLIKES_POSTS)
+            .where({
+                user_id: getLikeDislikeDB.user_id,
+                post_id: getLikeDislikeDB.post_id
+            })
+
+        return result
     }
 
     public deleteLikeDislike = async (likeDislikeDB: LikeDislikeDB): Promise<void> => {

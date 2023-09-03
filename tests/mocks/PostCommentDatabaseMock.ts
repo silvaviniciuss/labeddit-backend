@@ -1,5 +1,5 @@
 import { BaseDatabase } from "../../src/database/BaseDatabase"
-import { GetPostCommentDB, LikeDislikePostCommentDB, POST_COMMENT_LIKE, PostCommentDB } from "../../src/models/PostComment"
+import { GetLikeDislikePostCommentDB, GetPostCommentDB, LikeDislikePostCommentDB, POST_COMMENT_LIKE, PostCommentDB } from "../../src/models/PostComment"
 
 const postCommentMock: PostCommentDB[] = [
     {
@@ -85,6 +85,10 @@ export class PostCommentDatabaseMock extends BaseDatabase {
         return postCommentMockWithCreatorName.filter(postComment => postComment.id === id)
     }
 
+    public findPostCommentWithCreatorDB = async ():Promise<GetPostCommentDB[]> => {
+        return postCommentMockWithCreatorName
+    }
+
     public insertPostComment = async (newPostCommentDB: PostCommentDB): Promise<void> => {
 
     }
@@ -114,6 +118,14 @@ export class PostCommentDatabaseMock extends BaseDatabase {
             return POST_COMMENT_LIKE.ALREADY_DISLIKED
         }
 
+    }
+
+    public getLikeDislikePostComment = async (likeDislikePostCommentDB: GetLikeDislikePostCommentDB): Promise<LikeDislikePostCommentDB> => {
+        const [result] = likeCommentDB.filter(like =>
+            like.post_comment_id === likeDislikePostCommentDB.post_comment_id &&
+            like.user_id === likeDislikePostCommentDB.user_id
+        )
+        return result
     }
 
     public deleteLikeDislikeComment = async (likeDislikePostCommentDB:LikeDislikePostCommentDB):Promise<void> => {

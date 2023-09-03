@@ -7,12 +7,37 @@ import { CreatePostCommentSchema } from "../../dto/postComment/createPostComment
 import { EditPostCommentSchema } from "../../dto/postComment/editPostComment.dto";
 import { DeletePostCommentSchema } from "../../dto/postComment/deletePostComment.dto";
 import { LikeDislikePostCommentSchema } from "../../dto/postComment/likeDislikePostComment.dto";
+import { GetLikeDislikePostCommentSchema} from "../../dto/postComment/getLikeDislikePostComment.dto";
+import { GetCommentsSchema } from "../../dto/postComment/getComments.dto";
 
 export class PostCommentController {
     constructor(
         private postCommentBusiness: PostCommentBusiness
     ) { }
 
+
+    public getComments = async (req: Request, res: Response) => {
+        try {
+            const input = GetCommentsSchema.parse({
+                token: req.headers.authorization
+            })
+
+            const output = await this.postCommentBusiness.getComments(input)
+
+            res.status(200).send(output)
+
+        } catch (error) {
+            console.log(error)
+            if (error instanceof ZodError) {
+                res.status(400).send(error.issues)
+            }
+            if (error instanceof BaseError) {
+                res.status(error.statusCode).send(error.message)
+            } else {
+                res.status(500).send("Erro inesperado")
+            }
+        }
+    }
     public getPostComment = async (req: Request, res: Response) => {
         try {
             const input = GetPostCommentSchema.parse({
@@ -95,6 +120,7 @@ export class PostCommentController {
             })
 
             const output = await this.postCommentBusiness.deletePostComment(input)
+            res.status(200).send(output)
 
         } catch (error) {
             console.log(error)
@@ -118,6 +144,30 @@ export class PostCommentController {
             })
 
             const output = await this.postCommentBusiness.likeDislikePostComment(input)
+
+            res.status(200).send(output)
+
+        } catch (error) {
+            console.log(error)
+            if (error instanceof ZodError) {
+                res.status(400).send(error.issues)
+            }
+            if (error instanceof BaseError) {
+                res.status(error.statusCode).send(error.message)
+            } else {
+                res.status(500).send("Erro inesperado")
+            }
+        }
+    } 
+
+    public getLikeDislikePostComment = async (req: Request, res: Response) => {
+        try {
+            const input = GetLikeDislikePostCommentSchema.parse({
+                postCommentId: req.params.id,
+                token: req.headers.authorization
+            })
+
+            const output = await this.postCommentBusiness.getLikeDislikePostComment(input)
 
             res.status(200).send(output)
 

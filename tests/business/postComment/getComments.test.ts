@@ -1,31 +1,29 @@
-import { PostBusiness } from "../../../src/database/business/PostBusiness"
-import { PostDatabaseMock } from "../../mocks/PostDatabaseMock"
-import { IdGeneratorMock } from "../../mocks/IdGeneratorMock"
-import { TokenManagerMock } from "../../mocks/TokenManagerMock"
-import {UserDatabaseMock} from "../../mocks/UserDatabaseMock"
-import { GetPostsSchema } from "../../../src/dto/posts/getPosts.dto"
+import { PostCommentBusiness } from "../../../src/database/business/PostCommentBusiness"
+import { GetCommentsSchema } from "../../../src/dto/postComment/getComments.dto"
+import { LikeDislikePostCommentSchema } from "../../../src/dto/postComment/likeDislikePostComment.dto"
 import { BadRequestError } from "../../../src/errors/BadRequestError"
+import { IdGeneratorMock } from "../../mocks/IdGeneratorMock"
+import { PostCommentDatabaseMock } from "../../mocks/PostCommentDatabaseMock"
+import { TokenManagerMock } from "../../mocks/TokenManagerMock"
 
-describe("Get Posts", () => {
-    const postBusiness = new PostBusiness(
-        new PostDatabaseMock(),
+describe("Like Dislike Post Comment", () => {
+    const postCommentBusiness = new PostCommentBusiness(
+        new PostCommentDatabaseMock(),
         new IdGeneratorMock(),
-        new TokenManagerMock(),
-        new UserDatabaseMock()
+        new TokenManagerMock()
     )
 
-    test("deve retornar a lista com os posts", async () => {
-        const input = GetPostsSchema.parse({
+    test("deve retornar cometários de todos os posts", async()=>{
+        const input = GetCommentsSchema.parse({
             token: "token-mock-fulano"
         })
-
-        const output = await postBusiness.getPost(input)
-
+        const output = await postCommentBusiness.getComments(input)
         expect(output).toHaveLength(3)
         expect(output).toEqual([
             {
-                id: "id-mock-post1",
-                content: "content-mock1",
+                id: "id-mock-postComment1",
+                post_id: "id-mock-post1",
+                content: "content-comment-mock1",
                 likes: 0,
                 dislikes: 0,
                 createdAt: expect.any(String),
@@ -34,10 +32,12 @@ describe("Get Posts", () => {
                     id: "id-mock-fulano",
                     nickname: "fulano"
                 }
+                
             },
             {
-                id: "id-mock-post2",
-                content: "content-mock2",
+                id: "id-mock-postComment2",
+                post_id: "id-mock-post2",
+                content: "content-comment-mock2",
                 likes: 0,
                 dislikes: 1,
                 createdAt: expect.any(String),
@@ -46,10 +46,11 @@ describe("Get Posts", () => {
                     id: "id-mock-fulano",
                     nickname: "fulano"
                 }
-            }, 
+            },
             {
-                id: "id-mock-post3",
-                content: "content-mock3",
+                id: "id-mock-postComment3",
+                post_id: "id-mock-post3",
+                content: "content-comment-mock3",
                 likes: 0,
                 dislikes: 0,
                 createdAt: expect.any(String),
@@ -57,19 +58,18 @@ describe("Get Posts", () => {
                 creator: {
                     id: "id-mock-astrodev",
                     nickname: "astrodev"
-                }
+                }   
             }
         ])
     })
 
-    test("deve retornar a menssagem de token inválido", async () => {
+    test("deve retornar menssagem de token inválido", async () => {
         expect.assertions(2)
         try {
-            const input = GetPostsSchema.parse({
-                token: "token-mock-astrdev"
+            const input = GetCommentsSchema.parse({
+                token: "token-mock-fula"
             })
-
-            await postBusiness.getPost(input)
+            await postCommentBusiness.getComments(input)
         } catch (error) {
             if (error instanceof BadRequestError) {
                 expect(error.message).toBe("Token inválido")

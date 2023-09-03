@@ -2,6 +2,7 @@ import { PostBusiness } from "../../../src/database/business/PostBusiness"
 import { PostDatabaseMock } from "../../mocks/PostDatabaseMock"
 import { IdGeneratorMock } from "../../mocks/IdGeneratorMock"
 import { TokenManagerMock } from "../../mocks/TokenManagerMock"
+import {UserDatabaseMock} from "../../mocks/UserDatabaseMock"
 import { BadRequestError } from "../../../src/errors/BadRequestError"
 import { CreatePostSchema } from "../../../src/dto/posts/createPost.dto"
 
@@ -9,7 +10,8 @@ describe("Create Post", () => {
     const postBusiness = new PostBusiness(
         new PostDatabaseMock(),
         new IdGeneratorMock(),
-        new TokenManagerMock()
+        new TokenManagerMock(),
+        new UserDatabaseMock()
     )
 
     test("deve retornar o conteúdo ao criar o post", async () => {

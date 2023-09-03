@@ -1,21 +1,24 @@
 import { CreatePostInputDTO, CreatePostOutputDTO } from "../../dto/posts/createPost.dto";
 import { DeletePostInputDTO, DeletePostOutputDTO } from "../../dto/posts/delelePost.dto";
 import { EditPostsInputDTO, EditPostsOutputDTO } from "../../dto/posts/editPosts.dto";
+import { GetLikeDislikePostInputDTO, GetLikeDislikePostOutputDTO } from "../../dto/posts/getLikeDislikePost.dto";
 import { GetPostsInputDTO, GetPostsOutputDTO } from "../../dto/posts/getPosts.dto";
 import { LikeDislikePostInputDTO, LikeDislikePostOutputDTO } from "../../dto/posts/likeDislikePost.dto";
 import { BadRequestError } from "../../errors/BadRequestError";
 import { NotFoundError } from "../../errors/NotfoundError";
-import { LikeDislikeDB, POST_LIKE, Posts } from "../../models/Posts";
+import { GetLikeDislikeDB, LikeDislikeDB, POST_LIKE, Posts } from "../../models/Posts";
 import { USER_ROLES } from "../../models/Users";
 import { IdGenerator } from "../../services/IdGenerator";
 import { TokenManager } from "../../services/TokenManager";
 import { PostDatabase } from "../PostDatabase";
+import { UserDatabase } from "../UserDatabase";
 
 export class PostBusiness {
     constructor(
         private postDatabase: PostDatabase,
         private idGenerator: IdGenerator,
-        private tokenManager: TokenManager
+        private tokenManager: TokenManager,
+        private userDatabase: UserDatabase
     ) { }
 
     public getPost = async (input: GetPostsInputDTO): Promise<GetPostsOutputDTO> => {
@@ -211,6 +214,33 @@ export class PostBusiness {
         await this.postDatabase.updatePost(updatedPostDB)
 
         const output: LikeDislikePostOutputDTO = undefined
+        return output
+    }
+
+    public getLikeDislikePost = async (input: GetLikeDislikePostInputDTO): Promise<GetLikeDislikePostOutputDTO> => {
+        const { token, postId } = input
+
+        const payload = this.tokenManager.getPayload(token)
+
+        if (!payload) {
+            throw new BadRequestError("Token inválido")
+        }
+
+        const postDBExist = await this.postDatabase.findPostById(postId)
+
+        if (!postDBExist) {
+            throw new NotFoundError("Post inexistente")
+        }
+
+        const getLikeDislikeDB: GetLikeDislikeDB = {
+            user_id: payload.id,
+            post_id: postId
+        }
+
+        const likeDislikes = await this.postDatabase.getLikeDislike(getLikeDislikeDB)
+
+        const output: GetLikeDislikePostOutputDTO = likeDislikes
+
         return output
     }
 }

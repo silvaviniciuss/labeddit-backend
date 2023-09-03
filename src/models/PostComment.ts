@@ -21,6 +21,12 @@ export interface GetPostCommentDB {
     creator_nickname: string
 }
 
+export interface GetLikeDislikePostCommentDB {
+    user_id: string,
+    post_comment_id: string 
+}
+
+
 export interface PostCommentModel {
     id: string,
     content: string,

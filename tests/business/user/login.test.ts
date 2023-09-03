@@ -25,7 +25,8 @@ describe("Test Login", () => {
         const output = await userBusiness.login(input)
 
         expect(output).toEqual({
-            token: "token-mock-fulano"
+            token: "token-mock-fulano",
+            nickname: "Fulano"
         })
     })
 

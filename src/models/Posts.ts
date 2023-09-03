@@ -38,6 +38,11 @@ export interface LikeDislikeDB {
     like: number
 }
 
+export interface GetLikeDislikeDB {
+    user_id: string,
+    post_id: string 
+}
+
 export enum POST_LIKE {
     ALREADY_LIKED = 'ALREADY LIKED',
     ALREADY_DISLIKED = 'ALREADY DISLIKED'

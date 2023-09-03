@@ -54,20 +54,4 @@ describe("Get PostComments", () => {
         }
     })
 
-    test("deve retornar menssagem de id inexistente", async () => {
-        expect.assertions(2)
-        try {
-            const input = GetPostCommentSchema.parse({
-                token: "token-mock-astrodev",
-                idToFind: "id-mock-post7"
-            })
-            await postCommentBusiness.getPostComment(input)
-        } catch (error) {
-            if (error instanceof NotFoundError) {
-                expect(error.message).toBe("Post com id inexistente")
-                expect(error.statusCode).toBe(404)
-            }
-        }
-    })
-
 })

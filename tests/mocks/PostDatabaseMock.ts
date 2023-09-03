@@ -1,4 +1,4 @@
-import { GetPostsDB, LikeDislikeDB, POST_LIKE, PostDB, Posts } from "../../src/models/Posts"
+import { GetLikeDislikeDB, GetPostsDB, LikeDislikeDB, POST_LIKE, PostDB, Posts } from "../../src/models/Posts"
 import { BaseDatabase } from "../../src/database/BaseDatabase"
 
 const postsMock: PostDB[] = [
@@ -109,6 +109,14 @@ export class PostDatabaseMock extends BaseDatabase {
         } else {
             return POST_LIKE.ALREADY_DISLIKED
         }
+    }
+    
+    public getLikeDislike = async (getLikeDislikeDB: GetLikeDislikeDB): Promise<LikeDislikeDB> => {
+        const [result] = likeDB.filter(like =>
+            like.post_id === getLikeDislikeDB.post_id &&
+            like.user_id === getLikeDislikeDB.user_id
+        )
+        return result
     }
 
     public deleteLikeDislike = async (likeDislikeDB: LikeDislikeDB): Promise<void> => {
